@@ -42,6 +42,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--fg);min-height:100
 .result-name{font-family:var(--serif);font-size:clamp(1.9rem,7vw,2.8rem);font-weight:700;line-height:1.2;margin-bottom:.75rem}
 .result-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:.4rem;margin-top:.5rem}
 .tag{background:var(--raised);border:1px solid var(--border);border-radius:20px;padding:.22rem .7rem;font-size:.78rem;color:var(--muted)}
+.link-btn{display:inline-flex;align-items:center;gap:.4rem;margin-top:1rem;padding:.5rem 1.1rem;border-radius:20px;background:var(--accent);color:#fff;font-size:.85rem;font-weight:600;text-decoration:none;transition:opacity .15s}
+.link-btn:hover{opacity:.85}
 @keyframes pop-in{from{opacity:0;transform:scale(.92) translateY(6px)}to{opacity:1;transform:none}}
 .result-card.anim .result-name{animation:pop-in .35s cubic-bezier(.34,1.56,.64,1) both}
 .list-section{display:none}.list-section.show{display:block}
@@ -53,7 +55,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--fg);min-height:100
 .rest-item:last-child{border-bottom:none}.rest-item:hover{background:var(--raised)}.rest-item.lit{background:var(--accent-soft)}
 .item-n{font-size:.72rem;font-variant-numeric:tabular-nums;color:var(--muted);min-width:1.6rem;text-align:right;flex-shrink:0}
 .item-name{flex:1;min-width:0;font-size:.88rem;font-weight:500}
-.item-sub{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
+.item-sub{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.item-link{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);text-decoration:none;font-size:.9rem;transition:background .15s}
+.item-link:hover{background:var(--accent);color:#fff}
 </style>
 </head>
 <body>
@@ -74,6 +78,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--fg);min-height:100
     <p class="result-eyebrow">오늘의 점심</p>
     <p class="result-name" id="resultName"></p>
     <div class="result-tags" id="resultTags"></div>
+    <div id="resultLink"></div>
   </div>
   <section class="list-section" id="listSection" aria-label="전체 식당 목록">
     <div class="list-head">
@@ -86,7 +91,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--fg);min-height:100
 <script>
 'use strict';
 const CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0dL_zcThZCSOqAd_yumu-pf12b6buyF-Wfkr1DX7KE8u4IBZcs4rnbgDtlenzSYuhwAIOf7pfCxBM/pub?output=csv';
-let restaurants=[],nameCol=0,lastIdx=-1;
+let restaurants=[],nameCol=0,linkCol=-1,lastIdx=-1;
 
 function parseCSV(raw){
   const rows=[];let cur='',inQ=false,cells=[];
@@ -108,9 +113,18 @@ function parseAndRender(text){
   if(rows.length<2){setStatus('데이터가 없습니다','err');return;}
   const headers=rows[0];
   const nameKw=['이름','식당','가게','상호','name','restaurant','메뉴','menu'];
-  nameCol=0;
-  headers.forEach((h,i)=>{if(nameKw.some(k=>h.toLowerCase().includes(k)))nameCol=i;});
-  restaurants=rows.slice(1).map(cells=>({name:(cells[nameCol]||'').trim(),cells,headers})).filter(r=>r.name);
+  const linkKw=['링크','link','url','지도','map'];
+  nameCol=0;linkCol=-1;
+  headers.forEach((h,i)=>{
+    const hl=h.toLowerCase();
+    if(nameKw.some(k=>hl.includes(k)))nameCol=i;
+    if(linkKw.some(k=>hl.includes(k)))linkCol=i;
+  });
+  restaurants=rows.slice(1).map(cells=>({
+    name:(cells[nameCol]||'').trim(),
+    link:linkCol>=0?(cells[linkCol]||'').trim():'',
+    cells,headers
+  })).filter(r=>r.name);
   if(!restaurants.length){setStatus('식당 이름이 있는 행을 찾지 못했습니다','err');return;}
   setStatus('식당 '+restaurants.length+'개','ok');
   document.getElementById('spinBtn').disabled=false;
@@ -131,14 +145,36 @@ async function loadSheet(){
 
 function renderList(){
   document.getElementById('restList').innerHTML=restaurants.map((r,i)=>{
-    const sub=r.cells.filter((c,ci)=>ci!==nameCol&&c).slice(0,2).join(' · ');
+    const sub=r.cells.filter((c,ci)=>ci!==nameCol&&ci!==linkCol&&c).slice(0,2).join(' · ');
+    const linkIcon=r.link?'<a class="item-link" href="'+esc(r.link)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="링크 열기">🔗</a>':'';
     return '<div class="rest-item" onclick="pickIdx('+i+')" role="button" tabindex="0"'+
       ' onkeydown="if(event.key===\'Enter\'||event.key===\' \')pickIdx('+i+')">' +
       '<span class="item-n">'+(i+1)+'</span>'+
       '<span class="item-name">'+esc(r.name)+'</span>'+
       (sub?'<span class="item-sub">'+esc(sub)+'</span>':'')+
+      linkIcon+
       '</div>';
   }).join('');
+}
+
+function pickIdx(idx){
+  lastIdx=idx;
+  const r=restaurants[idx];
+  const card=document.getElementById('resultCard');
+  card.classList.remove('anim');void card.offsetWidth;
+  card.classList.add('show','anim');
+  document.getElementById('resultName').textContent=r.name;
+  document.getElementById('resultTags').innerHTML=r.cells.map((cell,ci)=>{
+    if(ci===nameCol||ci===linkCol||!cell.trim())return'';
+    const label=r.headers[ci]?r.headers[ci]+': ':'';
+    return'<span class="tag">'+esc(label+cell)+'</span>';
+  }).filter(Boolean).slice(0,5).join('');
+  const linkEl=document.getElementById('resultLink');
+  linkEl.innerHTML=r.link
+    ?'<a class="link-btn" href="'+esc(r.link)+'" target="_blank" rel="noopener">🔗 링크 열기</a>'
+    :'';
+  document.querySelectorAll('.rest-item').forEach((el,i)=>el.classList.toggle('lit',i===idx));
+  card.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 function pickRandom(){
@@ -149,25 +185,7 @@ function pickRandom(){
   pickIdx(idx);
 }
 
-function pickIdx(idx){
-  lastIdx=idx;
-  const r=restaurants[idx];
-  const card=document.getElementById('resultCard');
-  const nameEl=document.getElementById('resultName');
-  const tagsEl=document.getElementById('resultTags');
-  card.classList.remove('anim');void card.offsetWidth;
-  card.classList.add('show','anim');
-  nameEl.textContent=r.name;
-  tagsEl.innerHTML=r.cells.map((cell,ci)=>{
-    if(ci===nameCol||!cell.trim())return'';
-    const label=r.headers[ci]?r.headers[ci]+': ':'';
-    return'<span class="tag">'+esc(label+cell)+'</span>';
-  }).filter(Boolean).slice(0,5).join('');
-  document.querySelectorAll('.rest-item').forEach((el,i)=>el.classList.toggle('lit',i===idx));
-  card.scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function setStatus(msg,cls){const el=document.getElementById('status');el.innerHTML=msg;el.className='status'+(cls?' '+cls:'');}
 
 document.getElementById('spinBtn').addEventListener('click',pickRandom);
