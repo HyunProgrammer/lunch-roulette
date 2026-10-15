@@ -7,294 +7,74 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap">
 <style>
 :root {
-  --bg:          #FAF8F4;
-  --fg:          #1C1917;
-  --accent:      #D04E22;
-  --accent-soft: #FBF0EC;
-  --surface:     #FFFFFF;
-  --raised:      #F3F0EB;
-  --border:      #E5E0D6;
-  --muted:       #7A726A;
-  --shadow:      rgba(208, 78, 34, 0.22);
-  --serif: 'Noto Serif KR', Georgia, serif;
-  --sans:  'Noto Sans KR', system-ui, sans-serif;
+  --bg:#FAF8F4;--fg:#1C1917;--accent:#D04E22;--accent-soft:#FBF0EC;
+  --surface:#FFFFFF;--raised:#F3F0EB;--border:#E5E0D6;--muted:#7A726A;
+  --shadow:rgba(208,78,34,0.22);
+  --serif:'Noto Serif KR',Georgia,serif;--sans:'Noto Sans KR',system-ui,sans-serif;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg:          #1B1714;
-    --fg:          #EDE9E2;
-    --accent:      #E86030;
-    --accent-soft: #2C1E18;
-    --surface:     #252018;
-    --raised:      #2E2820;
-    --border:      #3D3529;
-    --muted:       #9B9089;
-  }
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: var(--sans);
-  background: var(--bg);
-  color: var(--fg);
-  min-height: 100vh;
-  padding: 2.5rem 1rem 4rem;
-}
-
-.wrap {
-  max-width: 540px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-/* Header */
-.header { text-align: center; }
-
-.kicker {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 0.6rem;
-}
-
-.headline {
-  font-family: var(--serif);
-  font-size: clamp(2.6rem, 10vw, 3.8rem);
-  font-weight: 700;
-  line-height: 1.05;
-}
-
-.subhead {
-  margin-top: 0.9rem;
-  font-size: 0.9rem;
-  color: var(--muted);
-  line-height: 1.7;
-}
-
-/* Status */
-.status {
-  font-size: 0.8rem;
-  color: var(--muted);
-  text-align: center;
-  min-height: 1.2em;
-}
-.status.ok  { color: #2E9457; }
-.status.err { color: #C0392B; }
-
-@keyframes pulse-dot {
-  0%, 100% { opacity: 0.3; } 50% { opacity: 1; }
-}
-.dots span {
-  display: inline-block;
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: var(--muted);
-  margin: 0 2px;
-  animation: pulse-dot 1.2s ease-in-out infinite;
-}
-.dots span:nth-child(2) { animation-delay: 0.2s; }
-.dots span:nth-child(3) { animation-delay: 0.4s; }
-
-/* Spin button */
-.spin-wrap { display: flex; justify-content: center; }
-
-.spin-btn {
-  width: 168px;
-  height: 168px;
-  border-radius: 50%;
-  border: none;
-  background: var(--accent);
-  color: #fff;
-  font-family: var(--serif);
-  font-size: 1.05rem;
-  font-weight: 700;
-  line-height: 1.35;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.3rem;
-  box-shadow: 0 10px 28px var(--shadow);
-  transition: transform 0.14s, box-shadow 0.14s;
-  position: relative;
-  overflow: hidden;
-}
-.spin-btn::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: radial-gradient(circle at 38% 35%, rgba(255,255,255,0.18) 0%, transparent 60%);
-  pointer-events: none;
-}
-.spin-btn:hover:not(:disabled) {
-  transform: scale(1.06) translateY(-2px);
-  box-shadow: 0 16px 40px var(--shadow);
-}
-.spin-btn:active:not(:disabled) { transform: scale(0.97); }
-.spin-btn:disabled { opacity: 0.38; cursor: not-allowed; }
-.spin-icon { font-size: 1.9rem; line-height: 1; }
-
-/* Result card */
-.result-card {
-  background: var(--surface);
-  border: 2px solid var(--accent);
-  border-radius: 18px;
-  padding: 2rem 1.5rem 1.75rem;
-  text-align: center;
-  display: none;
-  position: relative;
-  overflow: hidden;
-}
-.result-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 4px;
-  background: var(--accent);
-}
-.result-card.show { display: block; }
-
-.result-eyebrow {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 0.85rem;
-}
-.result-name {
-  font-family: var(--serif);
-  font-size: clamp(1.9rem, 7vw, 2.8rem);
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 0.75rem;
-}
-.result-tags {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.4rem;
-  margin-top: 0.5rem;
-}
-.tag {
-  background: var(--raised);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 0.22rem 0.7rem;
-  font-size: 0.78rem;
-  color: var(--muted);
-}
-
-@keyframes pop-in {
-  from { opacity: 0; transform: scale(0.92) translateY(6px); }
-  to   { opacity: 1; transform: none; }
-}
-.result-card.anim .result-name {
-  animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-
-/* List */
-.list-section { display: none; }
-.list-section.show { display: block; }
-
-.list-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 0.6rem;
-}
-.list-title {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.list-count {
-  font-size: 0.78rem;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.rest-list {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-}
-.rest-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.8rem 1rem;
-  border-bottom: 1px solid var(--border);
-  cursor: pointer;
-  transition: background 0.1s;
-}
-.rest-item:last-child { border-bottom: none; }
-.rest-item:hover { background: var(--raised); }
-.rest-item.lit { background: var(--accent-soft); }
-
-.item-n {
-  font-size: 0.72rem;
-  font-variant-numeric: tabular-nums;
-  color: var(--muted);
-  min-width: 1.6rem;
-  text-align: right;
-  flex-shrink: 0;
-}
-.item-name {
-  flex: 1;
-  min-width: 0;
-  font-size: 0.88rem;
-  font-weight: 500;
-}
-.item-sub {
-  font-size: 0.78rem;
-  color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 140px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .spin-btn { transition: none; }
-  .result-card.anim .result-name { animation: none; }
-}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1B1714;--fg:#EDE9E2;--accent:#E86030;--accent-soft:#2C1E18;
+  --surface:#252018;--raised:#2E2820;--border:#3D3529;--muted:#9B9089;
+}}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--fg);min-height:100vh;padding:2.5rem 1rem 4rem}
+.wrap{max-width:540px;margin:0 auto;display:flex;flex-direction:column;gap:2rem}
+.header{text-align:center}
+.kicker{font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:.6rem}
+.headline{font-family:var(--serif);font-size:clamp(2.6rem,10vw,3.8rem);font-weight:700;line-height:1.05}
+.subhead{margin-top:.9rem;font-size:.9rem;color:var(--muted);line-height:1.7}
+.status{font-size:.8rem;color:var(--muted);text-align:center;min-height:1.2em}
+.status.ok{color:#2E9457}.status.err{color:#C0392B}
+@keyframes pulse-dot{0%,100%{opacity:.3}50%{opacity:1}}
+.dots span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--muted);margin:0 2px;animation:pulse-dot 1.2s ease-in-out infinite}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+.spin-wrap{display:flex;justify-content:center}
+.spin-btn{width:168px;height:168px;border-radius:50%;border:none;background:var(--accent);color:#fff;font-family:var(--serif);font-size:1.05rem;font-weight:700;line-height:1.35;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;box-shadow:0 10px 28px var(--shadow);transition:transform .14s,box-shadow .14s;position:relative;overflow:hidden}
+.spin-btn::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 38% 35%,rgba(255,255,255,.18) 0%,transparent 60%);pointer-events:none}
+.spin-btn:hover:not(:disabled){transform:scale(1.06) translateY(-2px);box-shadow:0 16px 40px var(--shadow)}
+.spin-btn:active:not(:disabled){transform:scale(.97)}
+.spin-btn:disabled{opacity:.38;cursor:not-allowed}
+.spin-icon{font-size:1.9rem;line-height:1}
+.result-card{background:var(--surface);border:2px solid var(--accent);border-radius:18px;padding:2rem 1.5rem 1.75rem;text-align:center;display:none;position:relative;overflow:hidden}
+.result-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--accent)}
+.result-card.show{display:block}
+.result-eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:.85rem}
+.result-name{font-family:var(--serif);font-size:clamp(1.9rem,7vw,2.8rem);font-weight:700;line-height:1.2;margin-bottom:.75rem}
+.result-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:.4rem;margin-top:.5rem}
+.tag{background:var(--raised);border:1px solid var(--border);border-radius:20px;padding:.22rem .7rem;font-size:.78rem;color:var(--muted)}
+@keyframes pop-in{from{opacity:0;transform:scale(.92) translateY(6px)}to{opacity:1;transform:none}}
+.result-card.anim .result-name{animation:pop-in .35s cubic-bezier(.34,1.56,.64,1) both}
+.list-section{display:none}.list-section.show{display:block}
+.list-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.6rem}
+.list-title{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.list-count{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.rest-list{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.rest-item{display:flex;align-items:center;gap:.75rem;padding:.8rem 1rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+.rest-item:last-child{border-bottom:none}.rest-item:hover{background:var(--raised)}.rest-item.lit{background:var(--accent-soft)}
+.item-n{font-size:.72rem;font-variant-numeric:tabular-nums;color:var(--muted);min-width:1.6rem;text-align:right;flex-shrink:0}
+.item-name{flex:1;min-width:0;font-size:.88rem;font-weight:500}
+.item-sub{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
 </style>
 </head>
 <body>
-
 <div class="wrap">
   <header class="header">
     <p class="kicker">Lunch Roulette</p>
     <h1 class="headline">오늘<br>뭐 먹지?</h1>
     <p class="subhead">스프레드시트의 식당 목록에서<br>오늘의 점심을 골라드립니다</p>
   </header>
-
-  <p class="status" id="status">
-    <span class="dots"><span></span><span></span><span></span></span>
-  </p>
-
+  <p class="status" id="status"><span class="dots"><span></span><span></span><span></span></span></p>
   <div class="spin-wrap">
     <button class="spin-btn" id="spinBtn" disabled aria-label="점심 메뉴 추천받기">
       <span class="spin-icon">🎲</span>
       <span>오늘의<br>점심 추천</span>
     </button>
   </div>
-
   <div class="result-card" id="resultCard" aria-live="polite">
     <p class="result-eyebrow">오늘의 점심</p>
     <p class="result-name" id="resultName"></p>
     <div class="result-tags" id="resultTags"></div>
   </div>
-
   <section class="list-section" id="listSection" aria-label="전체 식당 목록">
     <div class="list-head">
       <span class="list-title">전체 식당</span>
@@ -303,110 +83,95 @@ body {
     <div class="rest-list" id="restList"></div>
   </section>
 </div>
-
 <script>
 'use strict';
+const CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0dL_zcThZCSOqAd_yumu-pf12b6buyF-Wfkr1DX7KE8u4IBZcs4rnbgDtlenzSYuhwAIOf7pfCxBM/pub?output=csv';
+let restaurants=[],nameCol=0,lastIdx=-1;
 
-let restaurants = [];
-let nameCol = 0;
-let lastIdx = -1;
-
-function parseAndRender(rows) {
-  // rows is a 2D array from Apps Script
-  const data = rows.filter(r => r.some(c => String(c).trim()));
-  if (data.length < 2) { setStatus('데이터가 없습니다', 'err'); return; }
-
-  const headers = data[0].map(h => String(h));
-  const nameKw = ['이름','식당','가게','상호','name','restaurant','메뉴','menu'];
-  nameCol = 0;
-  headers.forEach((h, i) => {
-    if (nameKw.some(k => h.toLowerCase().includes(k))) nameCol = i;
-  });
-
-  restaurants = data.slice(1).map(cells => ({
-    name: String(cells[nameCol] || '').trim(),
-    cells: cells.map(c => String(c)),
-    headers,
-  })).filter(r => r.name);
-
-  if (!restaurants.length) { setStatus('식당 이름이 있는 행을 찾지 못했습니다', 'err'); return; }
-
-  setStatus('식당 ' + restaurants.length + '개', 'ok');
-  document.getElementById('spinBtn').disabled = false;
-
-  renderList();
-  document.getElementById('listSection').classList.add('show');
-  document.getElementById('listCount').textContent = restaurants.length + '개';
+function parseCSV(raw){
+  const rows=[];let cur='',inQ=false,cells=[];
+  const push=()=>{cells.push(cur.trim());cur='';};
+  const pushRow=()=>{push();rows.push([...cells]);cells.length=0;};
+  for(let i=0;i<raw.length;i++){
+    const c=raw[i];
+    if(c==='"'){if(inQ&&raw[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}
+    else if(c===','&&!inQ)push();
+    else if((c==='\n'||c==='\r')&&!inQ){if(cur||cells.length)pushRow();if(c==='\r'&&raw[i+1]==='\n')i++;}
+    else cur+=c;
+  }
+  if(cur||cells.length)pushRow();
+  return rows;
 }
 
-function renderList() {
-  const list = document.getElementById('restList');
-  list.innerHTML = restaurants.map((r, i) => {
-    const sub = r.cells.filter((c, ci) => ci !== nameCol && c).slice(0, 2).join(' · ');
-    return '<div class="rest-item" onclick="pickIdx(' + i + ')" role="button" tabindex="0"' +
-      ' onkeydown="if(event.key===\'Enter\'||event.key===\' \')pickIdx(' + i + ')">' +
-      '<span class="item-n">' + (i+1) + '</span>' +
-      '<span class="item-name">' + esc(r.name) + '</span>' +
-      (sub ? '<span class="item-sub">' + esc(sub) + '</span>' : '') +
+function parseAndRender(text){
+  const rows=parseCSV(text).filter(r=>r.some(c=>c));
+  if(rows.length<2){setStatus('데이터가 없습니다','err');return;}
+  const headers=rows[0];
+  const nameKw=['이름','식당','가게','상호','name','restaurant','메뉴','menu'];
+  nameCol=0;
+  headers.forEach((h,i)=>{if(nameKw.some(k=>h.toLowerCase().includes(k)))nameCol=i;});
+  restaurants=rows.slice(1).map(cells=>({name:(cells[nameCol]||'').trim(),cells,headers})).filter(r=>r.name);
+  if(!restaurants.length){setStatus('식당 이름이 있는 행을 찾지 못했습니다','err');return;}
+  setStatus('식당 '+restaurants.length+'개','ok');
+  document.getElementById('spinBtn').disabled=false;
+  renderList();
+  document.getElementById('listSection').classList.add('show');
+  document.getElementById('listCount').textContent=restaurants.length+'개';
+}
+
+async function loadSheet(){
+  try{
+    const res=await fetch(CSV_URL);
+    if(!res.ok)throw new Error();
+    parseAndRender(await res.text());
+  }catch{
+    setStatus('시트를 불러오지 못했습니다','err');
+  }
+}
+
+function renderList(){
+  document.getElementById('restList').innerHTML=restaurants.map((r,i)=>{
+    const sub=r.cells.filter((c,ci)=>ci!==nameCol&&c).slice(0,2).join(' · ');
+    return '<div class="rest-item" onclick="pickIdx('+i+')" role="button" tabindex="0"'+
+      ' onkeydown="if(event.key===\'Enter\'||event.key===\' \')pickIdx('+i+')">' +
+      '<span class="item-n">'+(i+1)+'</span>'+
+      '<span class="item-name">'+esc(r.name)+'</span>'+
+      (sub?'<span class="item-sub">'+esc(sub)+'</span>':'')+
       '</div>';
   }).join('');
 }
 
-function pickRandom() {
-  if (!restaurants.length) return;
+function pickRandom(){
+  if(!restaurants.length)return;
   let idx;
-  if (restaurants.length > 1) {
-    do { idx = Math.floor(Math.random() * restaurants.length); } while (idx === lastIdx);
-  } else { idx = 0; }
+  if(restaurants.length>1)do{idx=Math.floor(Math.random()*restaurants.length);}while(idx===lastIdx);
+  else idx=0;
   pickIdx(idx);
 }
 
-function pickIdx(idx) {
-  lastIdx = idx;
-  const r = restaurants[idx];
-  const card   = document.getElementById('resultCard');
-  const nameEl = document.getElementById('resultName');
-  const tagsEl = document.getElementById('resultTags');
-
-  card.classList.remove('anim');
-  void card.offsetWidth;
-  card.classList.add('show', 'anim');
-
-  nameEl.textContent = r.name;
-
-  const tags = r.cells.map(function(cell, ci) {
-    if (ci === nameCol || !cell.trim()) return '';
-    const label = r.headers[ci] ? r.headers[ci] + ': ' : '';
-    return '<span class="tag">' + esc(label + cell) + '</span>';
-  }).filter(Boolean).slice(0, 5).join('');
-  tagsEl.innerHTML = tags;
-
-  document.querySelectorAll('.rest-item').forEach(function(el, i) {
-    el.classList.toggle('lit', i === idx);
-  });
-
-  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+function pickIdx(idx){
+  lastIdx=idx;
+  const r=restaurants[idx];
+  const card=document.getElementById('resultCard');
+  const nameEl=document.getElementById('resultName');
+  const tagsEl=document.getElementById('resultTags');
+  card.classList.remove('anim');void card.offsetWidth;
+  card.classList.add('show','anim');
+  nameEl.textContent=r.name;
+  tagsEl.innerHTML=r.cells.map((cell,ci)=>{
+    if(ci===nameCol||!cell.trim())return'';
+    const label=r.headers[ci]?r.headers[ci]+': ':'';
+    return'<span class="tag">'+esc(label+cell)+'</span>';
+  }).filter(Boolean).slice(0,5).join('');
+  document.querySelectorAll('.rest-item').forEach((el,i)=>el.classList.toggle('lit',i===idx));
+  card.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function setStatus(msg,cls){const el=document.getElementById('status');el.innerHTML=msg;el.className='status'+(cls?' '+cls:'');}
 
-function setStatus(msg, cls) {
-  const el = document.getElementById('status');
-  el.innerHTML = msg;
-  el.className = 'status' + (cls ? ' ' + cls : '');
-}
-
-document.getElementById('spinBtn').addEventListener('click', pickRandom);
-
-// Apps Script에서 데이터 가져오기
-google.script.run
-  .withSuccessHandler(parseAndRender)
-  .withFailureHandler(function(err) {
-    setStatus('데이터를 불러오지 못했습니다: ' + err.message, 'err');
-  })
-  .getRestaurants();
+document.getElementById('spinBtn').addEventListener('click',pickRandom);
+loadSheet();
 </script>
 </body>
 </html>
