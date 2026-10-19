@@ -124,7 +124,7 @@ const excluded=new Set();
 
 // 퀵 필터 정의 — 여기서 추가/수정 가능
 const QUICK_FILTERS=[
-  {label:'🍣 초밥 제외', match: t=>t==='초밥'},
+  {label:'🍣 초밥 제외', match: t=>t.includes('초밥')},
   {label:'🌶️ 마라 제외', match: t=>t.includes('마라')},
 ];
 
